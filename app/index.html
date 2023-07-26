@@ -73,83 +73,89 @@
   <div id="result"></div>
 
   <script>
-    fetch('locations.csv')
-  .then(response => response.text())
-  .then(csvData => {
-    const rows = csvData.split('\n');
-    for (let i = 1; i < rows.length; i++) {
-      const location = rows[i].trim();
-      if (location !== '') {
-        const option = document.createElement('option');
-        option.value = location;
-        option.textContent = location;
-        locationSelect.appendChild(option);
-      }
-    }
-  })
-      .catch(error => {
-        console.error('Error fetching locations:', error);
-      });
+  const locationSelect = document.getElementById('location'); // Replace 'location' with the correct ID of the select element
+  const resultDiv = document.getElementById('result'); // Replace 'result' with the correct ID of the result element
+  const form = document.getElementById('prediction-form'); // Replace 'prediction-form' with the correct ID of the form element
+  const errorMessages = document.querySelectorAll('.error-message');
 
-    form.addEventListener('submit', function(event) {
-      event.preventDefault();
-
-      // Clear previous error messages
-      for (let i = 0; i < errorMessages.length; i++) {
-        errorMessages[i].style.display = 'none';
-      }
-
-      // Retrieve the form values
-      const location = document.getElementById('location').value;
-      const sqft = parseFloat(document.getElementById('sqft').value);
-      const bath = parseFloat(document.getElementById('bath').value);
-      const bhk = parseFloat(document.getElementById('bhk').value);
-
-      let isValid = true;
-
-      // Validate input values
-      if (sqft < 300 || sqft > 30000) {
-        document.getElementById('sqft').nextElementSibling.style.display = 'block';
-        isValid = false;
-      }
-      if (bath < 1 || bath > 16) {
-        document.getElementById('bath').nextElementSibling.style.display = 'block';
-        isValid = false;
-      }
-      if (bhk < 1 || bhk > 16) {
-        document.getElementById('bhk').nextElementSibling.style.display = 'block';
-        isValid = false;
-      }
-
-      if (!isValid) {
-        return;
-      }
-
-      // Make the prediction request
-      const url = '/predict'; // Replace with the correct endpoint URL
-      const data = { location, sqft, bath, bhk };
-
-      fetch(url, {
-        method: 'POST',
-        headers{
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => response.json())
-      .then(responseData => {
-        if (responseData.success) {
-          const price = responseData.price;
-          resultDiv.innerHTML = `Predicted Price: $${price}`;
-        } else {
-          resultDiv.innerHTML = 'Prediction failed. Please try again.';
+  fetch('locations.csv')
+    .then(response => response.text())
+    .then(csvData => {
+      const rows = csvData.split('\n');
+      for (let i = 1; i < rows.length; i++) {
+        const location = rows[i].trim();
+        if (location !== '') {
+          const option = document.createElement('option');
+          option.value = location;
+          option.textContent = location;
+          locationSelect.appendChild(option);
         }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        resultDiv.innerHTML = 'An error occurred during the prediction. Please try again.';
-      });
+      }
+    })
+    .catch(error => {
+      console.error('Error fetching locations:', error);
     });
-  </script>
+
+  form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    // Clear previous error messages
+    for (let i = 0; i < errorMessages.length; i++) {
+      errorMessages[i].style.display = 'none';
+    }
+
+    // Retrieve the form values
+    const location = document.getElementById('location').value;
+    const sqft = parseFloat(document.getElementById('sqft').value);
+    const bath = parseFloat(document.getElementById('bath').value);
+    const bhk = parseFloat(document.getElementById('bhk').value);
+
+    let isValid = true;
+
+    // Validate input values
+    if (sqft < 300 || sqft > 30000) {
+      document.getElementById('sqft').nextElementSibling.style.display = 'block';
+      isValid = false;
+    }
+    if (bath < 1 || bath > 16) {
+      document.getElementById('bath').nextElementSibling.style.display = 'block';
+      isValid = false;
+    }
+    if (bhk < 1 || bhk > 16) {
+      document.getElementById('bhk').nextElementSibling.style.display = 'block';
+      isValid = false;
+    }
+
+    if (!isValid) {
+      return;
+    }
+
+    // Make the prediction request
+    const url = '/predict'; // Replace with the correct endpoint URL
+    const data = { location, sqft, bath, bhk };
+
+    fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(responseData => {
+      if (responseData.success) {
+        const price = responseData.price;
+        resultDiv.innerHTML = `Predicted Price: $${price}`;
+      } else {
+        resultDiv.innerHTML = 'Prediction failed. Please try again.';
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      resultDiv.innerHTML = 'An error occurred during the prediction. Please try again.';
+    });
+  });
+</script>
+
 </body>
 </html>
