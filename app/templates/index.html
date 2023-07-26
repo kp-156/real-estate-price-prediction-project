@@ -78,7 +78,7 @@
   const form = document.getElementById('prediction-form'); // Replace 'prediction-form' with the correct ID of the form element
   const errorMessages = document.querySelectorAll('.error-message');
 
-  fetch('locations.csv')
+  fetch('../../data/locations.csv')
     .then(response => response.text())
     .then(csvData => {
       const rows = csvData.split('\n');
